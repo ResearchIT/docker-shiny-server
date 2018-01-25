@@ -2,6 +2,7 @@ FROM centos:latest
 
 LABEL maintainer="Levi Baber <baber@iastate.edu>"
 
+#package installation
 RUN yum -y install epel-release && \
 	yum -y install R && \
 	Rscript -e "install.packages('shiny', repos='https://cran.rstudio.com/')" && \
