@@ -10,7 +10,7 @@ RUN yum -y install epel-release && \
         wget https://download3.rstudio.org/centos5.9/x86_64/shiny-server-1.5.6.875-rh5-x86_64.rpm && \
         yum -y install --nogpgcheck shiny-server-1.5.6.875-rh5-x86_64.rpm && \
 	yum -y install git && \
-	sed -i -e 's|/srv/shiny-server|/opt/app-root|g' /etc/shiny-server/shiny-server.conf
+	sed -i -e 's|/srv/shiny-server|/opt/app-root|g' /etc/shiny-server/shiny-server.conf && \
 	sed -i -e 's/run_as shiny;/run_as 1001;/g' /etc/shiny-server/shiny-server.conf; 
 
 USER 1001
