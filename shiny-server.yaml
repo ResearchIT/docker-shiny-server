@@ -97,9 +97,23 @@ objects:
       sourceStrategy:
         from:
           kind: DockerImage
-          name: ResearchIT/shiny-server:os_template
-          namespace: Docker
-          type: Docker
+          name: researchit/shiny-server:os_template
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${NAME}:latest
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    labels:
+      app: ${NAME}
+    name: ${NAME}
+  spec:
+    - annotations:
+        openshift.io/imported-from: researchit/shiny-server:openshift
+    tags:
+      name: ${NAME}
+
 parameters:
   - name: NAME
     displayName: Name 
@@ -109,7 +123,7 @@ parameters:
   - name: SOURCE_REPOSITORY_URL 
     displayName: Source Repository URL 
     description: The URL of the repository with your application source code 
-    value: https://github.com/reseearchit/shiny-ex.git 
+    value: https://github.com/researchit/shiny-ex.git 
     required: true 
   - name: SOURCE_REPOSITORY_REF 
     displayName: Source Repository Reference
