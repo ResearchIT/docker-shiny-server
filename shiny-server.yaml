@@ -97,8 +97,8 @@ objects:
       sourceStrategy:
         from:
           kind: DockerImage
-          name: shiny-server
-          namespace: ResearchIT
+          name: ResearchIT/shiny-server:os_template
+          namespace: Docker
           type: Docker
 parameters:
   - name: NAME
@@ -114,8 +114,10 @@ parameters:
   - name: SOURCE_REPOSITORY_REF 
     displayName: Source Repository Reference
     description: The branch or tag of the repository with your application source code 
+    value: master
     required: false
   - name: CONTEXT_DIR
     displayName: Source Repository application root directory
     description: The directory within your repository with your application source code 
+    value: ""
     required: false
