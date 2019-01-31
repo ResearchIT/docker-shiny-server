@@ -1,0 +1,1 @@
+openshift:x:${USER_ID}:${GROUP_ID}:openshift user:/opt/app-root:/bin/bash
