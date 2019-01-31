@@ -1,0 +1,121 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: shiny-server
+  annotations:
+    description: "Template for deployment of R-Shiny applications.\n For more info see https://github.com/ResearchIT/docker-shiny-server"
+    iconClass: "icon-other-unknown"
+    tags: "shiny,r,r-shiny"
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: ${NAME}
+    name: ${NAME}
+  spec:
+    ports:
+    - name: 3838-tcp
+      port: 3838
+      protocol: TCP
+      targetPort: 3838
+    selector:
+      app: ${NAME}
+      deploymentconfig: ${NAME}
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: ${NAME}
+    name: ${NAME}
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: ${NAME}
+      deploymentconfig: ${NAME}
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          app: ${NAME}
+          deploymentconfig: ${NAME}
+      spec:
+        containers:
+        - image: docker-registry.default.svc:5000/shiny-server/
+          imagePullPolicy: Always
+          name: ${NAME}
+          ports:
+          - containerPort: 3838
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${NAME}
+        from:
+          kind: ImageStreamTag
+          name: ${NAME}:latest
+      type: ImageChange
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      app: ${NAME}
+    name: ${NAME}
+  spec:
+    source:
+      git:
+        uri: ${SOURCE_REPOSITORY_URL}
+        ref: ${SOURCE_REPOSITORY_REF}
+      contextDir: "${CONTEXT_DIR}"
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: DockerImage
+          name: shiny-server
+          namespace: ResearchIT
+          type: Docker
+parameters:
+  - name: NAME
+    displayName: Name 
+    description: The name assigned to all frontend objects defined in this template. 
+    value: shiny-server 
+    required: true 
+  - name: SOURCE_REPOSITORY_URL 
+    displayName: Source Repository URL 
+    description: The URL of the repository with your application source code 
+    value: https://github.com/reseearchit/shiny-ex.git 
+    required: true 
+  - name: SOURCE_REPOSITORY_REF 
+    displayName: Source Repository Reference
+    description: The branch or tag of the repository with your application source code 
+    required: false
+  - name: CONTEXT_DIR
+    displayName: Source Repository application root directory
+    description: The directory within your repository with your application source code 
+    required: false
