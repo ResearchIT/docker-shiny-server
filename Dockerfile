@@ -27,8 +27,11 @@ RUN sed -i -e 's/run_as 1001;/run_as openshift;/g' /etc/shiny-server/shiny-serve
 RUN sed -i -e 's|/opt/app-root|/opt/app-root/src|g' /etc/shiny-server/shiny-server.conf
 
 #perms
-RUN chmod -R o+w /var/log/shiny-server
-RUN chmod g+w /var/lib/shiny-server
+RUN chmod -R o+w /var/log/shiny-server && chmod g+w /var/lib/shiny-server
+
+#Rlibs location
+RUN mkdir -p /opt/app-root/src/R-libs
+ENV R_LIBS=/opt/app-root/src/R-libs
 
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
