@@ -31,10 +31,10 @@ RUN chmod -R o+w /var/log/shiny-server && chmod g+w /var/lib/shiny-server
 
 # R_LIBS location in .Renviron
 RUN mkdir -p /opt/app-root/src/R_libs
-RUN echo "R_LIBS=/opt/app-root/src/R_libs" > ~/.Renviron
+RUN echo "R_LIBS=/opt/app-root/src/R_libs" > /opt/app-root/.Renviron
 
 # Copy in .Rprofile to set cran mirror & handle package installs
-COPY ./.Rprofile ~/
+COPY ./.Rprofile /opt/app-root/
 
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
