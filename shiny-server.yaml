@@ -97,7 +97,7 @@ objects:
       sourceStrategy:
         from:
           kind: DockerImage
-          name: researchit/shiny-server:os_template
+          name: researchit/shiny-server:latest
     output:
       to:
         kind: ImageStreamTag
