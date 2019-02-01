@@ -10,7 +10,7 @@ ENV \
     HOME=/opt/app-root/ \
     PATH=/opt/app-root/:$PATH
 
-#package installation
+# package installation
 RUN yum -y install epel-release && \
         yum -y install R libxml2-devel libcurl-devel openssl-devel v8-devel \
         nss_wrapper mariadb-devel && \
@@ -22,16 +22,19 @@ RUN yum -y install epel-release && \
 	sed -i -e 's|/srv/shiny-server|/opt/app-root|g' /etc/shiny-server/shiny-server.conf && \
 	sed -i -e 's/run_as shiny;/run_as 1001;/g' /etc/shiny-server/shiny-server.conf; 
 
-#shiny-server config file changes
+# shiny-server config file changes
 RUN sed -i -e 's/run_as 1001;/run_as openshift;/g' /etc/shiny-server/shiny-server.conf;
 RUN sed -i -e 's|/opt/app-root|/opt/app-root/src|g' /etc/shiny-server/shiny-server.conf
 
-#perms
+# perms
 RUN chmod -R o+w /var/log/shiny-server && chmod g+w /var/lib/shiny-server
 
-#Rlibs location
-RUN mkdir -p /opt/app-root/src/R-libs
-ENV R_LIBS=/opt/app-root/src/R-libs
+# R_LIBS location in .Renviron
+RUN mkdir -p /opt/app-root/src/R_libs
+RUN echo "R_LIBS=/opt/app-root/src/R_libs" > ~/.Renviron
+
+# Copy in .Rprofile to set cran mirror & handle package installs
+COPY ./.Rprofile ~/
 
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
