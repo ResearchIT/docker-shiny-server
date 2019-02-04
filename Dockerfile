@@ -28,6 +28,7 @@ RUN sed -i -e 's|/opt/app-root|/opt/app-root/src|g' /etc/shiny-server/shiny-serv
 
 # R_LIBS location in .Renviron
 RUN mkdir -p /opt/app-root/src/R_libs
+RUN chmod -R g+w /opt/app-root/src
 RUN echo "R_LIBS=/opt/app-root/src/R_libs" > /opt/app-root/.Renviron
 
 # Copy in .Rprofile to set cran mirror & handle package installs
