@@ -98,6 +98,7 @@ objects:
         from:
           kind: DockerImage
           name: researchit/shiny-server:latest
+        forcePull: true
     output:
       to:
         kind: ImageStreamTag
