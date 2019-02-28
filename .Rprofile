@@ -12,29 +12,29 @@ options(repos = r)
   
   # Install packages 
   if(!is.null(file)) {
-    packages <- read.table(file, stringsAsFactors = FALSE)
+    packages <- utils:::read.table(file, stringsAsFactors = FALSE)
     packages <- packages$V1
   }
   
-  if("devtools" %in% rownames(installed.packages())) {
+  if("devtools" %in% rownames(utils:::installed.packages())) {
     require(devtools)	  
   } else {
-    install.packages("devtools", lib=lib)  
+    utils:::install.packages("devtools", lib=lib)  
   }
   
-  if("stringr" %in% rownames(installed.packages())) {
+  if("stringr" %in% rownames(utils:::installed.packages())) {
     require(stringr)	  
   } else {
-    install.packages("stringr", lib=lib)  
+    utils:::install.packages("stringr", lib=lib)  
   }
 
   for(package in packages) {
     tmp <- strsplit(package, .Platform$file.sep)[[1]]
     packageName <- tmp[length(tmp)]
 
-    if(!(packageName %in% rownames(installed.packages()))) {
-      if(package %in% rownames(available.packages())) {
-        install.packages(package, lib=lib)
+    if(!(packageName %in% rownames(utils:::installed.packages()))) {
+      if(package %in% rownames(utils:::available.packages())) {
+        utils:::install.packages(package, lib=lib)
       } 
     }
   }
