@@ -8,3 +8,5 @@ mv /tmp/src/* ./
 
 # Fix source directory permissions
 fix-permissions ./
+
+Rscript ~/.Rprofile
