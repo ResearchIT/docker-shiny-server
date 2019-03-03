@@ -31,8 +31,8 @@ RUN mkdir -p /opt/app-root/src/R_libs
 RUN chmod -R g+w /opt/app-root/src
 RUN echo "R_LIBS=/opt/app-root/src/R_libs" > /opt/app-root/.Renviron
 
-# Copy in .Rprofile to set cran mirror & handle package installs
-COPY ./.Rprofile /opt/app-root/
+# Copy in installdeps.R to set cran mirror & handle package installs
+COPY ./installdeps.R /opt/app-root/src
 
 # perms
 RUN chmod -R o+w /var/log/shiny-server && chmod g+w /var/lib/shiny-server

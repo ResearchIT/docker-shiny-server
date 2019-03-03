@@ -8,7 +8,7 @@ options(repos = r)
 
 # function to install r-requirements.txt
 # adapted from https://gist.github.com/cannin/6b8c68e7db19c4902459
-.First <- function(file="/opt/app-root/src/r-requirements.txt", lib="/opt/app-root/src/R_libs") {
+installdeps <- function(file="/opt/app-root/src/r-requirements.txt", lib="/opt/app-root/src/R_libs") {
   
   # Install packages 
   if(!is.null(file)) {
@@ -39,3 +39,5 @@ options(repos = r)
     }
   }
 }
+
+installdeps()
