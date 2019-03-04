@@ -13,7 +13,7 @@ ENV \
 # package installation
 RUN yum -y install epel-release && \
         yum -y install R libxml2-devel libcurl-devel openssl-devel v8-devel \
-        nss_wrapper mariadb-devel && \
+        nss_wrapper mariadb-devel udunits2-devel && \
         Rscript -e "install.packages('shiny', repos='https://cran.rstudio.com/')" && \
         yum -y install wget && \
         wget https://download3.rstudio.org/centos6.3/x86_64/shiny-server-1.5.9.923-x86_64.rpm && \
