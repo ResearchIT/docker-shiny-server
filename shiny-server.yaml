@@ -109,6 +109,42 @@ objects:
     annotations:
       description: Keeps track of changes in the application image
     name: ${NAME}
+- apiVersion: v1
+  kind: ReplicationController
+  name: ${NAME}
+    namespace: ${NAME}
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: ${NAME}
+  spec:
+    replicas: 1
+    selector:
+      app: ${NAME}
+      deploymentconfig: ${NAME}
+    template:
+        creationTimestamp: null
+        labels:
+          app: ${NAME}
+          deploymentconfig: ${NAME}
+      spec:
+        containers:
+        - image: docker-registry.default.svc:5000/${NAME}
+          imagePullPolicy: Always
+          name: shiny-server
+          ports:
+          - containerPort: 3838
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
 
 parameters:
   - name: NAME
