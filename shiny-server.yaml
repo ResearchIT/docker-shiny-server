@@ -103,44 +103,32 @@ objects:
       to:
         kind: ImageStreamTag
         name: ${NAME}:latest
+    triggers:
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
 - apiVersion: v1
   kind: ImageStream
   metadata:
     annotations:
       description: Keeps track of changes in the application image
     name: ${NAME}
-- apiVersion: v1
-  kind: ReplicationController
+- apiVersion: route.openshift.io/v1
+  kind: Route
   metadata:
-    name: shiny-server
-    namespace: shiny-server
-  spec:
-    replicas: 1
-    selector:
+    creationTimestamp: null
+    labels:
       app: ${NAME}
-      deploymentconfig: ${NAME}
-    template:
-      metadata:
-        creationTimestamp: null
-        labels:
-          app: ${NAME}
-          deploymentconfig: ${NAME}
-      spec:
-        containers:
-        - image: docker-registry.default.svc:5000/${NAME}
-          imagePullPolicy: Always
-          name: shiny-server
-          ports:
-          - containerPort: 3838
-            protocol: TCP
-          resources: {}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-        dnsPolicy: ClusterFirst
-        restartPolicy: Always
-        schedulerName: default-scheduler
-        securityContext: {}
-        terminationGracePeriodSeconds: 30
+    name: private-route
+  spec:
+    host: ${NAME}.apps.openshift.las.iastate.edu
+    port:
+      targetPort: 3838-tcp
+    to:
+      kind: Service
+      name: ${NAME}
+      weight: 100
+    wildcardPolicy: None
 
 parameters:
   - name: NAME
