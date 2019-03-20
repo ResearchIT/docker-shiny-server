@@ -111,20 +111,16 @@ objects:
     name: ${NAME}
 - apiVersion: v1
   kind: ReplicationController
-  name: ${NAME}
-    namespace: ${NAME}
-    ownerReferences:
-    - apiVersion: apps.openshift.io/v1
-      blockOwnerDeletion: true
-      controller: true
-      kind: DeploymentConfig
-      name: ${NAME}
+  metadata:
+    name: shiny-server
+    namespace: shiny-server
   spec:
     replicas: 1
     selector:
       app: ${NAME}
       deploymentconfig: ${NAME}
     template:
+      metadata:
         creationTimestamp: null
         labels:
           app: ${NAME}
