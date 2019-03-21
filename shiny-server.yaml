@@ -6,53 +6,38 @@ metadata:
     description: "Template for deployment of R-Shiny applications.\n For more info see https://github.com/ResearchIT/docker-shiny-server"
     iconClass: "icon-other-unknown"
     tags: "shiny,r,r-shiny"
+    template.openshift.io/bindable: "false"
 objects:
 - apiVersion: v1
   kind: Service
   metadata:
-    labels:
-      app: ${NAME}
     name: ${NAME}
   spec:
     ports:
-    - name: 3838-tcp
+    - name: shiny-web
       port: 3838
-      protocol: TCP
       targetPort: 3838
     selector:
-      app: ${NAME}
-      deploymentconfig: ${NAME}
-    sessionAffinity: None
-    type: ClusterIP
-  status:
-    loadBalancer: {}
-- apiVersion: apps.openshift.io/v1
+      name: ${NAME}
+- apiVersion: v1
   kind: DeploymentConfig
   metadata:
-    labels:
-      app: ${NAME}
+    annotations:
+      description: Defines how to deploy the application server
+      template.alpha.openshift.io/wait-for-ready: "true"
     name: ${NAME}
   spec:
     replicas: 1
     revisionHistoryLimit: 10
     selector:
-      app: ${NAME}
-      deploymentconfig: ${NAME}
+      name: ${NAME}
     strategy:
-      activeDeadlineSeconds: 21600
-      resources: {}
-      rollingParams:
-        intervalSeconds: 1
-        maxSurge: 25%
-        maxUnavailable: 25%
-        timeoutSeconds: 600
-        updatePeriodSeconds: 1
-      type: Rolling
+      type: Recreate
     template:
       metadata:
         labels:
-          app: ${NAME}
-          deploymentconfig: ${NAME}
+          name: ${NAME}
+        name: ${NAME}
       spec:
         containers:
         - image: docker-registry.default.svc:5000/shiny-server/
@@ -60,14 +45,10 @@ objects:
           name: ${NAME}
           ports:
           - containerPort: 3838
-            protocol: TCP
-          resources: {}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-        dnsPolicy: ClusterFirst
+          resources:
+            limits:
+              memory: 1G
         restartPolicy: Always
-        schedulerName: default-scheduler
-        securityContext: {}
         terminationGracePeriodSeconds: 30
     test: false
     triggers:
@@ -80,11 +61,13 @@ objects:
           kind: ImageStreamTag
           name: ${NAME}:latest
       type: ImageChange
-- apiVersion: build.openshift.io/v1
+- apiVersion: v1
   kind: BuildConfig
   metadata:
-    labels:
-      app: ${NAME}
+    metadata:
+    annotations:
+      description: Defines how to build the application
+      template.alpha.openshift.io/wait-for-ready: "true"
     name: ${NAME}
   spec:
     source:
@@ -104,31 +87,25 @@ objects:
         kind: ImageStreamTag
         name: ${NAME}:latest
     triggers:
+    - type: ImageChange
     - type: ConfigChange
-    - imageChange: {}
-      type: ImageChange
+    - github:
+        secret: ${GITHUB_WEBHOOK_SECRET}
+      type: GitHub
 - apiVersion: v1
   kind: ImageStream
   metadata:
     annotations:
       description: Keeps track of changes in the application image
     name: ${NAME}
-- apiVersion: route.openshift.io/v1
+- apiVersion: v1
   kind: Route
   metadata:
-    creationTimestamp: null
-    labels:
-      app: ${NAME}
-    name: private-route
+    name: ${NAME}
   spec:
-    host: ${NAME}.apps.openshift.las.iastate.edu
-    port:
-      targetPort: 3838-tcp
     to:
       kind: Service
       name: ${NAME}
-      weight: 100
-    wildcardPolicy: None
 
 parameters:
   - name: NAME
@@ -151,3 +128,6 @@ parameters:
     description: The directory within your repository with your application source code 
     value: ""
     required: false
+  - description: The exposed hostname that will route to the Django service, if left blank a value will be defaulted.
+    displayName: Application Hostname
+    name: APPLICATION_DOMAIN
