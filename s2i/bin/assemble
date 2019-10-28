@@ -9,4 +9,7 @@ mv /tmp/src/* ./
 # Fix source directory permissions
 fix-permissions ./
 
+# git-lfs wasn't there at clone, so do a pull to download files
+git pull
+
 Rscript installdeps.R
