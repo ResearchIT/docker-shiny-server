@@ -26,9 +26,6 @@ RUN yum -y install epel-release && \
 	sed -i -e 's/run_as shiny;/run_as 1001;/g' /etc/shiny-server/shiny-server.conf; 
 
 
-RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | bash
-RUN yum -y install git-lfs
-
 # shiny-server config file changes
 RUN sed -i -e 's/run_as 1001;/run_as openshift;/g' /etc/shiny-server/shiny-server.conf;
 RUN sed -i -e 's|/opt/app-root|/opt/app-root/src|g' /etc/shiny-server/shiny-server.conf
