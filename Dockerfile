@@ -25,6 +25,12 @@ RUN yum -y install epel-release && \
 	sed -i -e 's|/srv/shiny-server|/opt/app-root|g' /etc/shiny-server/shiny-server.conf && \
 	sed -i -e 's/run_as shiny;/run_as 1001;/g' /etc/shiny-server/shiny-server.conf; 
 
+# gis related packages needed as dependencies for r packages
+RUN git clone https://github.com/spack/spack.git
+RUN . spack/share/spack/setup-env.sh
+RUN spack install geos
+RUN spack install gdal
+RUN export PATH=$PATH:$(spack location -i geos):$(spack location -i gdal)
 
 # shiny-server config file changes
 RUN sed -i -e 's/run_as 1001;/run_as openshift;/g' /etc/shiny-server/shiny-server.conf;
