@@ -6,5 +6,6 @@ envsubst < /tmp/passwd.template > /tmp/passwd
 export LD_PRELOAD=libnss_wrapper.so
 export NSS_WRAPPER_PASSWD=/tmp/passwd
 export NSS_WRAPPER_GROUP=/etc/group
+export SHINY_LOG_STDERR=1
 
 exec /opt/shiny-server/bin/shiny-server
