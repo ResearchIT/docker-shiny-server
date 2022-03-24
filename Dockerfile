@@ -22,9 +22,10 @@ RUN \
 # configure R
 RUN \
     echo -e '\noptions(repos = c(CRAN="https://mirror.las.iastate.edu/CRAN"))' >> /usr/lib64/R/library/base/R/Rprofile && \
-    mkdir -p /opt/app-root/src/R_libs && \
+    mkdir -p /opt/app-root/src/R_libs /opt/app-root/.R && \
     chmod -R g+w /opt/app-root/src && \
-    echo "R_LIBS=/opt/app-root/src/R_libs" > /opt/app-root/.Renviron;
+    echo "R_LIBS=/opt/app-root/src/R_libs" > /opt/app-root/.Renviron && \
+    echo "MAKEFLAGS = -j3" > /opt/app-root/.R/Makevars;
 
 # install and configure shiny server
 RUN \
