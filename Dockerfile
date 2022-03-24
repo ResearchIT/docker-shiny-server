@@ -16,27 +16,28 @@ RUN \
         dnf -y install R libxml2-devel libcurl-devel openssl-devel v8-devel \
         nss_wrapper mariadb-devel udunits2-devel geos-devel gdal-devel \
         proj-devel cairo-devel jq-devel protobuf-devel protobuf-compiler \
-        wget geos gdal git file && \
-        Rscript -e "install.packages(c('shiny','devtools','stringr','BiocManager'), repos='https://mirror.las.iastate.edu/CRAN')" && \
+        wget geos gdal git file;
+
+# configure R
+RUN \
+        echo -e '\noptions(repos = c(CRAN="https://mirror.las.iastate.edu/CRAN"))' >> /usr/lib64/R/library/base/R/Rprofile && \
+        mkdir -p /opt/app-root/src/R_libs && \
+        chmod -R g+w /opt/app-root/src && \
+        echo "R_LIBS=/opt/app-root/src/R_libs" > /opt/app-root/.Renviron;
+
+# install and configure shiny server
+RUN \
+        Rscript -e "install.packages(c('shiny','devtools','stringr','BiocManager'))" && \
         wget https://download3.rstudio.org/centos7/x86_64/shiny-server-1.5.17.973-x86_64.rpm && \
 	dnf -y --nogpgcheck install shiny-server-1.5.17.973-x86_64.rpm && \
+        chmod -R o+w /var/log/shiny-server && chmod g+w /var/lib/shiny-server && \
 	sed -i -e 's|/srv/shiny-server|/opt/app-root|g' /etc/shiny-server/shiny-server.conf && \
-	sed -i -e 's/run_as shiny;/run_as 1001;/g' /etc/shiny-server/shiny-server.conf; 
-
-# shiny-server config file changes
-RUN sed -i -e 's/run_as 1001;/run_as openshift;/g' /etc/shiny-server/shiny-server.conf;
-RUN sed -i -e 's|/opt/app-root|/opt/app-root/src|g' /etc/shiny-server/shiny-server.conf
-
-# R_LIBS location in .Renviron
-RUN mkdir -p /opt/app-root/src/R_libs
-RUN chmod -R g+w /opt/app-root/src
-RUN echo "R_LIBS=/opt/app-root/src/R_libs" > /opt/app-root/.Renviron
+        sed -i -e 's|/opt/app-root|/opt/app-root/src|g' /etc/shiny-server/shiny-server.conf && \
+	sed -i -e 's/run_as shiny;/run_as 1001;/g' /etc/shiny-server/shiny-server.conf && \
+        sed -i -e 's/run_as 1001;/run_as openshift;/g' /etc/shiny-server/shiny-server.conf;
 
 # Copy in installdeps.R to set cran mirror & handle package installs
 COPY ./installdeps.R /opt/app-root/src
-
-# perms
-RUN chmod -R o+w /var/log/shiny-server && chmod g+w /var/lib/shiny-server
 
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
