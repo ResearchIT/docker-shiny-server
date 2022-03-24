@@ -1,5 +1,5 @@
 FROM registry.fedoraproject.org/f35/s2i-core:latest
-LABEL maintainer="LAS IRIS <las-iris@iastate.edu>"
+LABEL maintainer="ISU LAS IRIS <las-iris@iastate.edu>"
 
 ENV \
     STI_SCRIPTS_URL=image:///usr/libexec/s2i \
@@ -12,14 +12,12 @@ ENV \
 
 # package installation
 RUN \
+        dnf -y update && \
         dnf -y install R libxml2-devel libcurl-devel openssl-devel v8-devel \
         nss_wrapper mariadb-devel udunits2-devel geos-devel gdal-devel \
         proj-devel cairo-devel jq-devel protobuf-devel protobuf-compiler \
         wget geos gdal git file && \
-        Rscript -e "install.packages('shiny', repos='https://cran.rstudio.com/')" && \
-        Rscript -e "install.packages('devtools', repos='https://cran.rstudio.com/')" && \     
-        Rscript -e "install.packages('stringr', repos='https://cran.rstudio.com/')" && \
-        Rscript -e "install.packages('BiocManager', repos='https://cran.rstudio.com/')" && \
+        Rscript -e "install.packages(c('shiny','devtools','stringr','BiocManager'), repos='https://mirror.las.iastate.edu/CRAN')" && \
         wget https://download3.rstudio.org/centos7/x86_64/shiny-server-1.5.17.973-x86_64.rpm && \
 	dnf -y --nogpgcheck install shiny-server-1.5.17.973-x86_64.rpm && \
 	sed -i -e 's|/srv/shiny-server|/opt/app-root|g' /etc/shiny-server/shiny-server.conf && \
@@ -46,18 +44,9 @@ COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 # Copy the passwd template for nss_wrapper
 COPY passwd.template /tmp/passwd.template
 
-RUN Rscript -e "install.packages('shinythemes', repos='https://mirror.las.iastate.edu/CRAN')" && \
-    Rscript -e "install.packages('dplyr', repos='https://mirror.las.iastate.edu/CRAN')" && \
-    Rscript -e "install.packages('ggplot2', repos='https://mirror.las.iastate.edu/CRAN')" && \
-    Rscript -e "install.packages('leaflet', repos='https://mirror.las.iastate.edu/CRAN')" && \
-    Rscript -e "install.packages('lubridate', repos='https://mirror.las.iastate.edu/CRAN')" && \
-    Rscript -e "install.packages('raster', repos='https://mirror.las.iastate.edu/CRAN')" && \
-    Rscript -e "install.packages('spData', repos='https://mirror.las.iastate.edu/CRAN')" && \
-    Rscript -e "install.packages('geojsonio', repos='https://mirror.las.iastate.edu/CRAN')" && \
-    Rscript -e "install.packages('sf', repos='https://mirror.las.iastate.edu/CRAN')" && \
-    Rscript -e "install.packages('plotly', repos='https://mirror.las.iastate.edu/CRAN')" && \
-    Rscript -e "install.packages('tidyr', repos='https://mirror.las.iastate.edu/CRAN')" && \
-    Rscript -e "install.packages('wesanderson', repos='https://mirror.las.iastate.edu/CRAN')" ;
+RUN Rscript -e "install.packages(c('shinythemes','dplyr','ggplot2','leaflet'), repos='https://mirror.las.iastate.edu/CRAN')" && \
+    Rscript -e "install.packages(c('lubridate','raster','spData','geojsonio'), repos='https://mirror.las.iastate.edu/CRAN')" && \
+    Rscript -e "install.packages(c('sf','plotly','tidyr','wesanderson'), repos='https://mirror.las.iastate.edu/CRAN')";
 
 USER 1001
 
