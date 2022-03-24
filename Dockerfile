@@ -1,5 +1,5 @@
-FROM registry.fedoraproject.org/f33/s2i-core:latest
-LABEL maintainer="Levi Baber <baber@iastate.edu>"
+FROM registry.fedoraproject.org/f35/s2i-core:latest
+LABEL maintainer="LAS IRIS <las-iris@iastate.edu>"
 
 ENV \
     STI_SCRIPTS_URL=image:///usr/libexec/s2i \
@@ -13,16 +13,15 @@ ENV \
 # package installation
 RUN \
         dnf -y install R libxml2-devel libcurl-devel openssl-devel v8-devel \
-        nss_wrapper mariadb-devel udunits2-devel \
-        geos-devel gdal-devel proj-devel cairo-devel && \
+        nss_wrapper mariadb-devel udunits2-devel geos-devel gdal-devel \
+        proj-devel cairo-devel jq-devel protobuf-devel protobuf-compiler \
+        wget geos gdal git file && \
         Rscript -e "install.packages('shiny', repos='https://cran.rstudio.com/')" && \
         Rscript -e "install.packages('devtools', repos='https://cran.rstudio.com/')" && \     
         Rscript -e "install.packages('stringr', repos='https://cran.rstudio.com/')" && \
         Rscript -e "install.packages('BiocManager', repos='https://cran.rstudio.com/')" && \
-        dnf -y install wget geos gdal && \
-        wget https://download3.rstudio.org/centos7/x86_64/shiny-server-1.5.16.958-x86_64.rpm && \
-	dnf -y --nogpgcheck install shiny-server-1.5.16.958-x86_64.rpm && \
-	dnf -y install git && \
+        wget https://download3.rstudio.org/centos7/x86_64/shiny-server-1.5.17.973-x86_64.rpm && \
+	dnf -y --nogpgcheck install shiny-server-1.5.17.973-x86_64.rpm && \
 	sed -i -e 's|/srv/shiny-server|/opt/app-root|g' /etc/shiny-server/shiny-server.conf && \
 	sed -i -e 's/run_as shiny;/run_as 1001;/g' /etc/shiny-server/shiny-server.conf; 
 
@@ -46,8 +45,6 @@ COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 
 # Copy the passwd template for nss_wrapper
 COPY passwd.template /tmp/passwd.template
-
-RUN dnf -y install jq-devel protobuf-devel protobuf-compiler
 
 RUN Rscript -e "install.packages('shinythemes', repos='https://mirror.las.iastate.edu/CRAN')" && \
     Rscript -e "install.packages('dplyr', repos='https://mirror.las.iastate.edu/CRAN')" && \
