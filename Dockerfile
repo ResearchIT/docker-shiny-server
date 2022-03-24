@@ -12,10 +12,12 @@ ENV \
 # package installation
 RUN \
     dnf -y update && \
-    dnf -y install R libxml2-devel libcurl-devel openssl-devel v8-devel \
-    nss_wrapper mariadb-devel udunits2-devel geos-devel gdal-devel \
-    proj-devel cairo-devel jq-devel protobuf-devel protobuf-compiler \
-    wget geos gdal git file;
+    dnf -y install \
+      R libxml2-devel libcurl-devel openssl-devel v8-devel \
+      nss_wrapper mariadb-devel udunits2-devel geos-devel gdal-devel \
+      proj-devel cairo-devel jq-devel protobuf-devel protobuf-compiler \
+      sqlite-devel wget geos gdal git file && \
+    dnf clean all;
 
 # configure R
 RUN \
@@ -32,12 +34,12 @@ RUN \
     Rscript -e "install.packages(c('sf','plotly','tidyr','wesanderson'))" && \
     wget https://download3.rstudio.org/centos7/x86_64/$SHINYSRVPKG && \
     dnf -y --nogpgcheck install $SHINYSRVPKG && \
+    dnf clean all && \
     rm -f $SHINYSRVPKG && \
     chmod -R o+w /var/log/shiny-server && \
     chmod g+w /var/lib/shiny-server && \
     sed -i -e 's|/srv/shiny-server|/opt/app-root/src|g' /etc/shiny-server/shiny-server.conf && \
-    sed -i -e 's/run_as shiny;/run_as openshift;/g' /etc/shiny-server/shiny-server.con && \
-    dnf clean all;
+    sed -i -e 's/run_as shiny;/run_as openshift;/g' /etc/shiny-server/shiny-server.conf;
 
 # Copy in installdeps.R to set cran mirror & handle package installs
 COPY ./installdeps.R /opt/app-root/src
