@@ -51,7 +51,7 @@ COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 # Copy the passwd template for nss_wrapper
 COPY passwd.template /tmp/passwd.template
 
-USER openshift
+USER 1001
 
 EXPOSE 3838
 
