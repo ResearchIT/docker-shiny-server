@@ -2,7 +2,7 @@ FROM registry.fedoraproject.org/f35/s2i-core:latest
 LABEL maintainer="ISU LAS IRIS <las-iris@iastate.edu>"
 
 ENV \
-    SHINYSRVPKG=shiny-server-1.5.19.995-x86_64.rpm \
+    SHINYSRVPKG=shiny-server-1.5.20.1002-x86_64.rpm \
     STI_SCRIPTS_URL=image:///usr/libexec/s2i \
     STI_SCRIPTS_PATH=/usr/libexec/s2i \
     APP_ROOT=/opt/app-root \
